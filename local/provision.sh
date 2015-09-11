@@ -21,19 +21,32 @@ cat <<HOSTS > /etc/hosts
 192.168.99.22 backend-02
 HOSTS
 
-# Basic install of tools
-#yum install https://github.com/LandRegistry-Ops/puppet-control/raw/development/site/profiles/files/lr-python3-3.4.3-1.x86_64.rpm -y
+# Installs an RPM from a remote URL
+remoteinstall() {
+  local PKG=$1
+  local URI=$2
+  [[ -z $PKG ]] && echo 'remoteinstall() - No package variable set'
+  [[ -z $URI ]] && echo 'remoteinstall() - No uri variable set'
+  if [[ $(rpm -q $PKG) == false ]]; then
+    echo "Installing ${PKG}" | output
+    if [[ ! -f "/tmp/${PKG}.rpm" ]]; then
+      curl -L -o "/tmp/${PKG}.rpm" $URI 2>/dev/null
+    fi
+    yum install "${DOWNLOADS_DIR}/${PKG}.rpm" -y
+  fi
+}
 
 # High Availability installation
-yum install haproxy keepalived -y
+yum install haproxy keepalived gcc -y
 
 # Python setup
-yum install python34 python34-devel python34-libs python34-tools
+remoteinstall lr-python3 https://github.com/LandRegistry-Ops/puppet-control/raw/development/site/profiles/files/lr-python3-3.4.3-1.x86_64.rpm
 
 # Python setup
-# FOLDER='/opt/ha-demo'
-# if [[ ! -d ${FOLDER} ]]; then
-#   mkdir -p ${FOLDER}
-#   pyvenv "${FOLDER}/venv"
-#   ${FOLDER}/venv/bin/pip install -r /vagrant/applications/requirements.txt
-# fi
+FOLDER='/home/vagrant/ha-demo'
+if [[ ! -d ${FOLDER} ]]; then
+  echo 'Creating VirtualEnv'
+  sudo -u vagrant mkdir -p ${FOLDER}
+  sudo -u vagrant /usr/local/bin/pyvenv3 "${FOLDER}/venv"
+  sudo -u vagrant ${FOLDER}/venv/bin/pip install -r /vagrant/applications/requirements.txt
+fi
