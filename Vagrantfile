@@ -1,6 +1,7 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+Vagrant.require_version ">= 1.7.4"
 Vagrant.configure(2) do | global |
   global.vm.box = "landregistry/centos"
   global.vm.provision "shell", inline: 'sudo yum update -q -y'
@@ -33,7 +34,7 @@ Vagrant.configure(2) do | global |
     global.vm.define node[:name] do | config |
       config.vm.hostname = node[:name]
       config.vm.network :private_network,
-        ip: node[:addr]
+        ip: node[:addr],
         virtualbox_inet: true
       config.vm.provision :shell,
         path: "local/provision.sh",
