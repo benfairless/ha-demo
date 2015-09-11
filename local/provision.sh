@@ -27,6 +27,8 @@ HOSTS
 # High Availability installation
 yum install haproxy keepalived -y
 
+# Python setup
+yum install python34 python34-devel python34-libs python34-tools
 
 # Python setup
 # FOLDER='/opt/ha-demo'
