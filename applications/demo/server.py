@@ -11,13 +11,12 @@ logger.addHandler(logging.StreamHandler())
 
 MODE=str(os.environ['MODE'])
 NODE=str(os.environ['NODE'])
-BACKEND='http://localhost:5001'
 
 @app.route('/')
 def default():
     if MODE == '0': # Frontend
         logging.info("Frontend hit")
-        backendchk = requests.get(BACKEND)
+        backendchk = requests.get(os.environ['BACKEND'])
         return "Frontend %s - %s" % (NODE,backendchk.text)
     elif MODE == '1': # Backend
         logging.info("Backend hit")
