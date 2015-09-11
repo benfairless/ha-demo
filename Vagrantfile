@@ -5,6 +5,11 @@ Vagrant.configure(2) do | global |
   global.vm.box = "landregistry/centos"
   global.vm.provision "shell", inline: 'sudo yum update -q -y'
 
+  # Use shared Cachier cache
+  if Vagrant.has_plugin?("vagrant-cachier")
+    global.cache.scope = :box
+  end
+
   nodes = [
     {
       :name => 'frontend-01',
