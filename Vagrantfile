@@ -34,7 +34,7 @@ Vagrant.configure(2) do | global |
       config.vm.hostname = node[:name]
       config.vm.network :private_network,
         ip: node[:addr]
-        #virtualbox_inet: true
+        virtualbox_inet: true
       config.vm.provision :shell,
         path: "local/provision.sh",
         privileged: true
