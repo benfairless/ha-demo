@@ -22,16 +22,16 @@ cat <<HOSTS > /etc/hosts
 HOSTS
 
 # Basic install of tools
-yum install https://github.com/LandRegistry-Ops/puppet-control/raw/development/site/profiles/files/lr-python3-3.4.3-1.x86_64.rpm -y
+#yum install https://github.com/LandRegistry-Ops/puppet-control/raw/development/site/profiles/files/lr-python3-3.4.3-1.x86_64.rpm -y
 
 # High Availability installation
 yum install haproxy keepalived -y
 
 
 # Python setup
-FOLDER='/opt/ha-demo'
-if [[ ! -d ${FOLDER} ]]; then
-  mkdir -p ${FOLDER}
-  pyvenv "${FOLDER}/venv"
-  ${FOLDER}/venv/bin/pip install -r /vagrant/applications/requirements.txt
-fi
+# FOLDER='/opt/ha-demo'
+# if [[ ! -d ${FOLDER} ]]; then
+#   mkdir -p ${FOLDER}
+#   pyvenv "${FOLDER}/venv"
+#   ${FOLDER}/venv/bin/pip install -r /vagrant/applications/requirements.txt
+# fi
