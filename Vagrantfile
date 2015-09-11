@@ -3,8 +3,11 @@
 
 Vagrant.require_version ">= 1.7.4"
 Vagrant.configure(2) do | global |
-  global.vm.box = "landregistry/centos"
-  global.vm.provision "shell", inline: 'sudo yum update -q -y'
+  global.vm.box = 'landregistry/centos'
+  global.vm.provision :shell,
+    inline: 'sudo yum update -q -y'
+  global.vm.provision :shell,
+    inline: 'echo "PATH=/vagrant/bin:$PATH" >> /home/vagrant/.bashrc'
 
   # Use shared Cachier cache
   if Vagrant.has_plugin?("vagrant-cachier")
@@ -37,7 +40,7 @@ Vagrant.configure(2) do | global |
         ip: node[:addr],
         virtualbox_inet: true
       config.vm.provision :shell,
-        path: "local/provision.sh",
+        path: "bin/ha-provision",
         privileged: true
     end
   end

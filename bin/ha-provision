@@ -21,26 +21,17 @@ cat <<HOSTS > /etc/hosts
 192.168.99.22 backend-02
 HOSTS
 
-# Installs an RPM from a remote URL
-remoteinstall() {
-  local PKG=$1
-  local URI=$2
-  [[ -z $PKG ]] && echo 'remoteinstall() - No package variable set'
-  [[ -z $URI ]] && echo 'remoteinstall() - No uri variable set'
-  if [[ $(rpm -q $PKG) == false ]]; then
-    echo "Installing ${PKG}" | output
-    if [[ ! -f "/tmp/${PKG}.rpm" ]]; then
-      curl -L -o "/tmp/${PKG}.rpm" $URI 2>/dev/null
-    fi
-    yum install "${DOWNLOADS_DIR}/${PKG}.rpm" -y
-  fi
-}
-
 # High Availability installation
 yum install haproxy keepalived gcc -y
 
 # Python setup
-remoteinstall lr-python3 https://github.com/LandRegistry-Ops/puppet-control/raw/development/site/profiles/files/lr-python3-3.4.3-1.x86_64.rpm
+if [[ $(rpm -q lr-python3) == false ]]; then
+  echo 'Installing Python 3'
+  if [[ ! -f '/vagrant/.vagrant/lr-python3.rpm' ]]; then
+    curl -L -o '/vagrant/.vagrant/lr-python3.rpm' https://github.com/LandRegistry-Ops/puppet-control/raw/development/site/profiles/files/lr-python3-3.4.3-1.x86_64.rpm 2>&1 >/dev/null
+  fi
+  yum install /vagrant/.vagrant/lr-python3.rpm -y
+fi
 
 # Python setup
 FOLDER='/home/vagrant/ha-demo'
