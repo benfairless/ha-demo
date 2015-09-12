@@ -3,6 +3,7 @@
 
 Vagrant.require_version ">= 1.7.4"
 Vagrant.configure(2) do | global |
+
   global.vm.box = 'landregistry/centos'
   global.vm.provision :shell,
     inline: 'sudo yum update -q -y'

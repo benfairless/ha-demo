@@ -24,11 +24,16 @@ HOSTS
 # High Availability installation
 yum install haproxy keepalived gcc -y
 
+# Temporary FOLDER
+if [[ ! -d '/vagrant/tmp' ]]; then
+  mkdir -p '/vagrant/tmp'
+fi
+
 # Python setup
-if [[ $(rpm -q lr-python3) == false ]]; then
+if [[ $(rpm -q 'lr-python3') != '0' ]]; then
   echo 'Installing Python 3'
   if [[ ! -f '/vagrant/.vagrant/lr-python3.rpm' ]]; then
-    curl -L -o '/vagrant/.vagrant/lr-python3.rpm' https://github.com/LandRegistry-Ops/puppet-control/raw/development/site/profiles/files/lr-python3-3.4.3-1.x86_64.rpm 2>&1 >/dev/null
+    curl -L -o '/vagrant/.vagrant/lr-python3.rpm' https://github.com/LandRegistry-Ops/puppet-control/raw/development/site/profiles/files/lr-python3-3.4.3-1.x86_64.rpm
   fi
   yum install /vagrant/.vagrant/lr-python3.rpm -y
 fi
@@ -39,5 +44,5 @@ if [[ ! -d ${FOLDER} ]]; then
   echo 'Creating VirtualEnv'
   sudo -u vagrant mkdir -p ${FOLDER}
   sudo -u vagrant /usr/local/bin/pyvenv3 "${FOLDER}/venv"
-  sudo -u vagrant ${FOLDER}/venv/bin/pip install -r /vagrant/applications/requirements.txt
+  sudo -u vagrant ${FOLDER}/venv/bin/pip install -r /vagrant/application/requirements.txt
 fi

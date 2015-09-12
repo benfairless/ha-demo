@@ -1,3 +1,4 @@
 .vagrant/
-applications/demo/__pycache__/
+application/__pycache__/
 *.pyc
+tmp/
