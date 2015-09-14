@@ -21,7 +21,7 @@ cat <<HOSTS > /etc/hosts
 192.168.99.22 backend-02
 HOSTS
 
-# High Availability installation
+# Dependency installation
 yum install haproxy keepalived gcc -y
 
 # Temporary FOLDER
@@ -29,7 +29,7 @@ if [[ ! -d '/vagrant/tmp' ]]; then
   mkdir -p '/vagrant/tmp'
 fi
 
-# Python setup
+# Python installation
 if [[ $(rpm -q 'lr-python3') != '0' ]]; then
   echo 'Installing Python 3'
   if [[ ! -f '/vagrant/.vagrant/lr-python3.rpm' ]]; then
@@ -38,7 +38,7 @@ if [[ $(rpm -q 'lr-python3') != '0' ]]; then
   yum install /vagrant/.vagrant/lr-python3.rpm -y
 fi
 
-# Python setup
+# Application setup
 VENV='/vagrant/tmp/virtualenv'
 if [[ ! -d ${FOLDER} ]]; then
   echo 'Creating VirtualEnv'
@@ -46,3 +46,58 @@ if [[ ! -d ${FOLDER} ]]; then
   sudo -u vagrant /usr/local/bin/pyvenv3 "${VENV}"
   sudo -u vagrant ${VENV}/bin/pip install -r /vagrant/application/requirements.txt
 fi
+cat <<SYSTEMD > /usr/lib/systemd/system/ha-demo.service
+[Unit]
+Description=High Availability demo application
+After=network.target
+
+[Service]
+Type=simple
+PIDFile=/tmp/ha-demo.pid
+User=vagrant
+Group=vagrant
+WorkingDirectory=/vagrant/application
+ExecStart=/vagrant/tmp/virtualenv/bin/gunicorn --config '/vagrant/application/gunicorn.py' server:app
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s TERM $MAINPID
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+SYSTEMD
+systemctl start ha-demo
+systemctl enable ha-demo
+
+# VIP setup
+case $(hostname) in
+  frontend-01) export PRIORITY='999'
+               export NAME='FRONTEND'
+               export ID='10'
+              ;;
+  frontend-02) export PRIORITY='100'
+               export NAME='FRONTEND'
+               export ID='10'
+              ;;
+   backend-01) export PRIORITY='999'
+               export NAME='BACKEND'
+               export ID='20'
+              ;;
+   backend-02) export PRIORITY='100'
+               export NAME='BACKEND'
+               export ID='20'
+              ;;
+esac
+cat <<KEEPALIVE > /etc/keepalived/keepalived.conf
+vrrp_instance ${NAME} {
+    state MASTER
+    interface eth1
+    virtual_router_id ${ID}
+    priority ${PRIORITY}
+    advert_int 1
+    virtual_ipaddress {
+        192.168.99.${ID}
+    }
+}
+KEEPALIVE
+systemctl start keepalived
+systemctl enable keepalived
