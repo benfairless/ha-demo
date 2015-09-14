@@ -102,3 +102,42 @@ vrrp_instance ${NAME} {
 KEEPALIVE
 systemctl start keepalived
 systemctl enable keepalived
+
+# HA Proxy setup
+case $(hostname) in
+  frontend*) export CLUSTER='frontend' ;;
+   backend*) export CLUSTER='backend'  ;;
+esac
+cat <<HAPROXY > /etc/haproxy/haproxy.cfg
+global
+    log         127.0.0.1 local2
+    chroot      /var/lib/haproxy
+    pidfile     /var/run/haproxy.pid
+    user        haproxy
+    group       haproxy
+    daemon
+    stats socket /var/lib/haproxy/stats
+defaults
+    mode                    http
+    log                     global
+    option                  httplog
+    option                  dontlognull
+    option                  http-server-close
+    option                  redispatch
+    timeout http-keep-alive 10s
+    timeout check           10s
+    maxconn                 3000
+listen ha-demo *:80
+    balance roundrobin
+    option  httpchk GET /backend
+    server  ${CLUSTER}-01 ${CLUSTER}-01:5000 check
+    server  ${CLUSTER}-02 ${CLUSTER}-02:5000 check
+listen admin *:8080
+    mode http
+    stats enable
+    stats hide-version
+    stats realm Haproxy\ Statistics
+    stats uri /
+HAPROXY
+systemctl start haproxy
+systemctl enable haproxy
