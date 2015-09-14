@@ -65,6 +65,7 @@ Restart=on-failure
 [Install]
 WantedBy=multi-user.target
 SYSTEMD
+systemctl daemon-reload
 systemctl start ha-demo
 systemctl enable ha-demo
 
