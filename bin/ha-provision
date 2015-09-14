@@ -39,10 +39,10 @@ if [[ $(rpm -q 'lr-python3') != '0' ]]; then
 fi
 
 # Python setup
-FOLDER='/home/vagrant/ha-demo'
+FOLDER='/vagrant/tmp/virtualenv'
 if [[ ! -d ${FOLDER} ]]; then
   echo 'Creating VirtualEnv'
   sudo -u vagrant mkdir -p ${FOLDER}
-  sudo -u vagrant /usr/local/bin/pyvenv3 "${FOLDER}/venv"
+  sudo -u vagrant /usr/local/bin/pyvenv3 "${FOLDER}"
   sudo -u vagrant ${FOLDER}/venv/bin/pip install -r /vagrant/application/requirements.txt
 fi
