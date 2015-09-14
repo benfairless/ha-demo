@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-VENV='/home/vagrant/ha-demo/venv'
+VENV='/vagrant/tmp/virtualenv'
 source ${VENV}/bin/activate
 
 export BACKEND

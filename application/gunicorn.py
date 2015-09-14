@@ -6,7 +6,7 @@ workers = multiprocessing.cpu_count() * 2 + 1
 threads = multiprocessing.cpu_count() * 2
 
 chdir = os.path.dirname(os.path.realpath(__file__))
-pidfile = '/home/vagrant/ha-demo/gunicorn.pid'
+pidfile = '/tmp/gunicorn.pid'
 
 accesslog = '/vagrant/tmp/access.log'
 access_log_format = '%(h)s %(l)s %(s)s %(l)s %(r)s'
