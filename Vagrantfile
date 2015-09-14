@@ -8,7 +8,7 @@ Vagrant.configure(2) do | global |
   global.vm.provision :shell,
     inline: 'sudo yum update -q -y'
   global.vm.provision :shell,
-    inline: 'echo "PATH=/vagrant/bin:$PATH" >> /home/vagrant/.bashrc'
+    inline: 'echo "PATH=/vagrant/bin:$PATH" >> /etc/bashrc'
 
   # Use shared Cachier cache
   if Vagrant.has_plugin?("vagrant-cachier")
