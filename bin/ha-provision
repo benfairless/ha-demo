@@ -71,19 +71,19 @@ systemctl enable ha-demo
 
 # VIP setup
 case $(hostname) in
-  frontend-01) export PRIORITY='999'
+  frontend-01) export PRIORITY='100'
                export NAME='FRONTEND'
                export ID='10'
               ;;
-  frontend-02) export PRIORITY='100'
+  frontend-02) export PRIORITY='99'
                export NAME='FRONTEND'
                export ID='10'
               ;;
-   backend-01) export PRIORITY='999'
+   backend-01) export PRIORITY='100'
                export NAME='BACKEND'
                export ID='20'
               ;;
-   backend-02) export PRIORITY='100'
+   backend-02) export PRIORITY='99'
                export NAME='BACKEND'
                export ID='20'
               ;;
