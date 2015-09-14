@@ -57,7 +57,7 @@ PIDFile=/tmp/ha-demo.pid
 User=vagrant
 Group=vagrant
 WorkingDirectory=/vagrant/application
-ExecStart=/vagrant/tmp/virtualenv/bin/gunicorn --config '/vagrant/application/gunicorn.py' server:app
+ExecStart=/vagrant/tmp/virtualenv/bin/gunicorn --config '/vagrant/application/gunicorn.py' server:app >/vagrant/tmp/application.log
 ExecReload=/bin/kill -s HUP $MAINPID
 ExecStop=/bin/kill -s TERM $MAINPID
 Restart=on-failure
@@ -89,6 +89,11 @@ case $(hostname) in
               ;;
 esac
 cat <<KEEPALIVE > /etc/keepalived/keepalived.conf
+vrrp_script haproxy {
+  script "pgrep haproxy"
+  interval 2
+  wait 2
+}
 vrrp_instance ${NAME} {
     state MASTER
     interface eth1
@@ -97,6 +102,9 @@ vrrp_instance ${NAME} {
     advert_int 1
     virtual_ipaddress {
         192.168.99.${ID}
+    }
+    track_script {
+      haproxy
     }
 }
 KEEPALIVE
