@@ -14,7 +14,7 @@ Four CentOS 7 VMs are used to provide this example and each pair represents an i
 
 Each virtual IP is managed using [Virtual Router Redundancy Protocol](https://en.wikipedia.org/wiki/Virtual_Router_Redundancy_Protocol) in KeepAliveD. This ensures quick failover of the VIP in the event of a failure on the master node, allowing connections to resume reaching the cluster in ~1 second.
 
-The primary method for distributing load to the application servers is through a HA Proxy load balancer configured to use a active:active round-robin balancing method to send requests to each application server. A health check is implemented in the configuration, resulting in a ~2 second failover in the event of a failure in one of the application servers.
+The primary method for distributing load to the application servers is through a HA Proxy load balancer configured to use an active:active round-robin balancing method to send requests to each application server. A health check is implemented in the configuration, resulting in a ~2 second failover in the event of a failure in one of the application servers.
 
 KeepAliveD is configured to fail over the address if the HA Proxy load balancer is stopped for any reason, providing full fault tolerance for the load balancers, application servers, and the host machines.
 
@@ -49,7 +49,7 @@ curl http://192.168.99.10/frontend
 
 ## Testing the clusters
 
-*Note: It is useful to run something similar to following command to watch the cluster fail over correctly. This will get a new response every 2 seconds and allow an almost real-time view of the service state.*
+*Note: It is useful to run something similar to the following command to watch the cluster fail over correctly. This will get a new response every 2 seconds and allow an almost real-time view of the service state.*
 ```
 $ watch curl -s http://192.168.99.10/frontend 2>/dev/null
 
@@ -85,6 +85,6 @@ sudo systemctl stop ha-demo
 
 If the load balancer health checks are working correctly, all requests should be diverted to the other node.
 
-You can check the current status by visiting the admin pages at http://192.168.99.10:8080/ and http://192.168.99.20:8080/.
+You can check the current status of HA Proxy by visiting the admin pages at http://192.168.99.10:8080/ and http://192.168.99.20:8080/.
 
 Starting the services again should restore full availability.
