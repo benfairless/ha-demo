@@ -12,7 +12,7 @@ cat <<HOSTS > /etc/hosts
 
 ## Host entries for High Availability
 # Frontend
-192.158.99.10 frontend-00
+192.168.99.10 frontend-00
 192.168.99.11 frontend-01
 192.168.99.12 frontend-02
 # Backend
@@ -25,9 +25,7 @@ HOSTS
 yum install haproxy keepalived gcc -y
 
 # Temporary FOLDER
-if [[ ! -d '/vagrant/tmp' ]]; then
-  mkdir -p '/vagrant/tmp'
-fi
+[[ ! -d '/vagrant/tmp' ]] && mkdir -p '/vagrant/tmp'
 
 # Python installation
 if [[ $(rpm -q 'lr-python3') != '0' ]]; then
@@ -52,7 +50,7 @@ Description=High Availability demo application
 After=network.target
 
 [Service]
-Type=simple
+Type=forking
 PIDFile=/tmp/ha-demo.pid
 User=vagrant
 Group=vagrant
