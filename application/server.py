@@ -4,7 +4,9 @@ import socket
 import requests
 from flask import Flask, Response, jsonify
 import json
+
 app = Flask(__name__)
+app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
