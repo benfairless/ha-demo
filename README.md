@@ -7,6 +7,8 @@ This repository provides a simple demonstation of stateless WSGI applications be
 
 In this example there is a pair of frontend applications sitting behind a pair of load balancers, and a pair of backend applications sitting behind another pair of load balancers to demonstrate full stack load balancing.
 
+Additionally an example of Apache Tomcat being load-balanced is given, with a configuration using sticky sessions and another using state replication inside the Tomcat cluster.
+
 
 ### Configuration
 
@@ -49,11 +51,13 @@ curl http://192.168.99.10/frontend
 
 ## Testing the clusters
 
+### Python WSGI stateless application
+
 *Note: It is useful to run something similar to the following command to watch the cluster fail over correctly. This will get a new response every 2 seconds and allow an almost real-time view of the service state.*
 ```
-$ watch curl -s http://192.168.99.10/frontend 2>/dev/null
+$ watch curl -s http://192.168.99.10:5050/frontend 2>/dev/null
 
-Every 2.0s: curl -s http://192.168.99.10/frontend
+Every 2.0s: curl -s http://192.168.99.10:5050/frontend
 
 {
   "backend": "backend-01",
@@ -61,6 +65,14 @@ Every 2.0s: curl -s http://192.168.99.10/frontend
 }
 
 ```
+
+#### Tomcat stateful application
+
+[Stateless load-balancing](http://192.168.99.10:5051/examples/servlets/servlet/SessionExample)
+
+[Sticky load-balancing](http://192.168.99.10:5052/examples/servlets/servlet/SessionExample)
+
+#### Testing failover
 
 You can test VIP failover in two ways; you can shutdown the VIP service itself, or the load balancer it points at.
 
@@ -85,6 +97,6 @@ sudo systemctl stop ha-demo
 
 If the load balancer health checks are working correctly, all requests should be diverted to the other node.
 
-You can check the current status of HA Proxy by visiting the admin pages at http://192.168.99.10:8080/ and http://192.168.99.20:8080/.
+You can check the current status of HA Proxy by visiting the admin pages at http://192.168.99.10/ and http://192.168.99.20/.
 
 Starting the services again should restore full availability.

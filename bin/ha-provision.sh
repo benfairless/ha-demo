@@ -11,10 +11,12 @@ cat <<HOSTS > /etc/hosts
 127.0.0.1 localhost
 
 ## Host entries for High Availability
+
 # Frontend
 192.168.99.10 frontend-00
 192.168.99.11 frontend-01
 192.168.99.12 frontend-02
+
 # Backend
 192.168.99.20 backend-00
 192.168.99.21 backend-01
@@ -22,50 +24,7 @@ cat <<HOSTS > /etc/hosts
 HOSTS
 
 # Dependency installation
-yum install haproxy keepalived gcc -y
-
-# Temporary FOLDER
-[[ ! -d '/vagrant/tmp' ]] && mkdir -p '/vagrant/tmp'
-
-# Python installation
-if [[ $(rpm -q 'lr-python3') != '0' ]]; then
-  echo 'Installing Python 3'
-  if [[ ! -f '/vagrant/.vagrant/lr-python3.rpm' ]]; then
-    curl -L -o '/vagrant/.vagrant/lr-python3.rpm' https://github.com/LandRegistry-Ops/puppet-control/raw/development/site/profiles/files/lr-python3-3.4.3-1.x86_64.rpm
-  fi
-  yum install /vagrant/.vagrant/lr-python3.rpm -y
-fi
-
-# Application setup
-VENV='/vagrant/tmp/virtualenv'
-if [[ ! -d ${FOLDER} ]]; then
-  echo 'Creating VirtualEnv'
-  sudo -u vagrant mkdir -p ${VENV}
-  sudo -u vagrant /usr/local/bin/pyvenv3 "${VENV}"
-  sudo -u vagrant ${VENV}/bin/pip install -r /vagrant/application/requirements.txt
-fi
-cat <<SYSTEMD > /usr/lib/systemd/system/ha-demo.service
-[Unit]
-Description=High Availability demo application
-After=network.target
-
-[Service]
-Type=forking
-PIDFile=/tmp/ha-demo.pid
-User=vagrant
-Group=vagrant
-WorkingDirectory=/vagrant/application
-ExecStart=/vagrant/tmp/virtualenv/bin/gunicorn --config '/vagrant/application/gunicorn.py' server:app >/vagrant/tmp/application.log
-ExecReload=/bin/kill -s HUP $MAINPID
-ExecStop=/bin/kill -s TERM $MAINPID
-Restart=on-failure
-
-[Install]
-WantedBy=multi-user.target
-SYSTEMD
-systemctl daemon-reload
-systemctl start ha-demo
-systemctl enable ha-demo
+yum install haproxy keepalived gcc -q -y
 
 # VIP setup
 case $(hostname) in
@@ -123,6 +82,7 @@ global
     group       haproxy
     daemon
     stats socket /var/lib/haproxy/stats
+
 defaults
     mode                    http
     log                     global
@@ -133,17 +93,33 @@ defaults
     timeout http-keep-alive 10s
     timeout check           10s
     maxconn                 3000
-listen ha-demo *:80
+
+listen ha-demo *:5050
     balance roundrobin
     option  httpchk GET /backend
     server  ${CLUSTER}-01 ${CLUSTER}-01:5000 check
     server  ${CLUSTER}-02 ${CLUSTER}-02:5000 check
-listen admin *:8080
+
+listen tomcat-demo *:5051
+    balance roundrobin
+    option httpchk GET /
+    server ${CLUSTER}-01 ${CLUSTER}-01:8080 check
+    server ${CLUSTER}-02 ${CLUSTER}-02:8080 check
+
+listen tomcat-sticky-demo *:5052
+    balance roundrobin
+    option httpchk GET /
+    #cookie JSESSIONID prefix
+    cookie SERVERID insert indirect nocache
+    server ${CLUSTER}-01 ${CLUSTER}-01:8080 check cookie ${CLUSTER}-01
+    server ${CLUSTER}-02 ${CLUSTER}-02:8080 check cookie ${CLUSTER}-02
+
+listen admin *:80
     mode http
     stats enable
     stats hide-version
-    stats realm Haproxy\ Statistics
+    stats realm HA Proxy\ Statistics
     stats uri /
 HAPROXY
-systemctl start haproxy
+systemctl restart haproxy
 systemctl enable haproxy

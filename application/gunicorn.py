@@ -14,4 +14,4 @@ access_log_format = '%(h)s %(l)s %(s)s %(l)s %(r)s'
 loglevel = 'info'
 errorlog = '/vagrant/tmp/error.log'
 
-raw_env = [ 'BACKEND_HOST=backend-00', 'BACKEND_PORT=80' ]
+raw_env = [ 'BACKEND_HOST=backend-00', 'BACKEND_PORT=5050' ]
